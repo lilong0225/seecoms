@@ -1,0 +1,88 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 26
+        versionCode 1
+        versionName "0.8.8"
+
+        buildConfigField "boolean", "LOG_DEBUG", 'true'
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    task sdkJar(dependsOn: ['compileReleaseJavaWithJavac'], type: Jar) {
+        appendix = "demo"
+        baseName = "androidJar"
+        version = "0.8.8"
+        classifier = "release"
+        //后缀名
+        extension = "jar"
+        //最终的 Jar 包名，如果没设置，默认为 [baseName]-[appendix]-[version]-[classifier].[extension]
+        archiveName = "ad_library_unsign.jar"
+        //需打包的资源所在的路径集
+        def srcClassDir = [project.buildDir.absolutePath + "/intermediates/javac/release/compileReleaseJavaWithJavac/classes"];
+        //初始化资源路径集
+        from srcClassDir
+        //去除路径集下部分的资源 tv.danmaku.ijk.media.utils
+        exclude "tv/danmaku/ijk/media/utils/BuildConfig.class"
+        exclude "**/R.class"
+        exclude "**/R\$*.class"
+        //只导入资源路径集下的部分资源
+        include "tv/danmaku/ijk/media/utils/**/*.class"
+    }
+
+    task sdk(type: proguard.gradle.ProGuardTask, dependsOn: "sdkJar") {
+        //Android 默认的 proguard 文件
+//        configuration android.getDefaultProguardFile('proguard-android.txt')
+        //manifest 注册的组件对应的 proguard 文件
+        configuration 'proguard-rules.pro'
+        String inJar = sdkJar.archivePath.getAbsolutePath()
+        //输入 jar
+        injars inJar
+        //输出 jar
+        outjars inJar.substring(0, inJar.lastIndexOf(File.separator)) + "/ad_library.jar"
+//${BuilJar.archiveName}
+
+        //设置不删除未引用的资源(类，方法等)
+        dontshrink
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+}
+
+/**
+ * 执行命令上传到Bintray：./gradlew clean build bintrayUpload -PbintrayUser=tentinker -PbintrayKey=4e5fe6b5c0a1a9af3a0201b636c1f6a3cc8e7150 -PdryRun=false
+ * 上传jcenter
+ */
+apply plugin: 'com.novoda.bintray-release'
+publish {
+    repoName = 'seecoms'
+    userOrg = 'tentinker'
+    groupId = 'com.seecoms.data'
+    artifactId = 'seecoms'
+    publishVersion = '0.1.1'
+    desc = 'test'
+    website = 'https://dl.bintray.com/tentinker/seecoms'
+}
