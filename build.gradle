@@ -7,7 +7,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 26
         versionCode 1
-        versionName "0.8.8"
+        versionName "0.1.2"
 
         buildConfigField "boolean", "LOG_DEBUG", 'true'
     }
@@ -31,7 +31,7 @@ android {
     task sdkJar(dependsOn: ['compileReleaseJavaWithJavac'], type: Jar) {
         appendix = "demo"
         baseName = "androidJar"
-        version = "0.8.8"
+        version = "0.1.2"
         classifier = "release"
         //后缀名
         extension = "jar"
@@ -82,7 +82,7 @@ publish {
     userOrg = 'tentinker'
     groupId = 'com.seecoms.data'
     artifactId = 'seecoms'
-    publishVersion = '0.1.1'
+    publishVersion = '0.1.2'
     desc = 'test'
     website = 'https://dl.bintray.com/tentinker/seecoms'
 }
